@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Electoral - Grupo C</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Corte Electoral — Votación Electrónica</h1>
+    <p class="subtitle">Prototipo BD2 · Grupo C · Campus Salto</p>
+    <div id="user-bar" class="hidden">
+      <span id="user-name"></span>
+      <span id="user-role" class="badge"></span>
+      <button id="btn-logout" class="btn-secondary">Salir</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="login-section" class="card">
+      <h2>Ingreso</h2>
+      <form id="login-form">
+        <label>CI<input type="text" id="login-ci" required placeholder="12345678"></label>
+        <label>Contraseña<input type="password" id="login-password" required placeholder="votante123"></label>
+        <button type="submit" class="btn-primary">Ingresar</button>
+      </form>
+      <p class="hint">Demo: votante CI 12345678 / votante123 · presidente CI 34567890 / presidente123</p>
+      <hr>
+      <h3>Registrarse</h3>
+      <form id="register-form">
+        <label>CI<input type="text" id="reg-ci" required></label>
+        <label>CC<input type="text" id="reg-cc" required></label>
+        <label>Nombre completo<input type="text" id="reg-nombre" required></label>
+        <label>Fecha nacimiento<input type="date" id="reg-fecha" required></label>
+        <label>Contraseña<input type="password" id="reg-password" required></label>
+        <button type="submit" class="btn-secondary">Registrarse como votante</button>
+      </form>
+      <div id="auth-message" class="message"></div>
+    </section>
+
+    <section id="votante-section" class="hidden">
+      <div class="card">
+        <h2>Emitir voto</h2>
+        <div class="grid-2">
+          <label>Elección
+            <select id="voto-eleccion"></select>
+          </label>
+          <label>Circuito donde vota
+            <select id="voto-circuito"></select>
+          </label>
+        </div>
+        <p id="circuito-info" class="info"></p>
+        <div id="listas-container"></div>
+        <label class="checkbox"><input type="checkbox" id="voto-blanco"> Voto en blanco</label>
+        <button id="btn-emitir" class="btn-primary">Emitir voto</button>
+        <div id="voto-message" class="message"></div>
+      </div>
+    </section>
+
+    <section id="presidente-section" class="hidden">
+      <div class="card">
+        <h2>Panel Presidente de Mesa</h2>
+        <div class="grid-2">
+          <label>Circuito
+            <select id="pres-circuito"></select>
+          </label>
+          <label>Elección
+            <select id="pres-eleccion"></select>
+          </label>
+        </div>
+        <div class="actions">
+          <button id="btn-cerrar-mesa" class="btn-danger">Cerrar mesa</button>
+          <button id="btn-ver-resultados" class="btn-primary">Ver resultados</button>
+        </div>
+        <div id="pres-message" class="message"></div>
+        <pre id="resultados-output" class="output"></pre>
+       </div>
+      <div class="card">
+        <h3>Reportes (consigna)</h3>
+        <button id="btn-reporte-depto" class="btn-secondary">Por departamento</button>
+        <button id="btn-reporte-partido" class="btn-secondary">Por partido</button>
+        <button id="btn-reporte-candidato" class="btn-secondary">Por candidato</button>
+        <pre id="reportes-output" class="output"></pre>
+      </div>
+    </section>
+
+    <section id="admin-section" class="hidden">
+      <div class="card">
+        <h2>Administración de datos</h2>
+        <div class="tabs">
+          <button class="tab active" data-tab="tab-eleccion">Elecciones</button>
+          <button class="tab" data-tab="tab-partido">Partidos</button>
+          <button class="tab" data-tab="tab-lista">Listas</button>
+          <button class="tab" data-tab="tab-candidato">Candidatos</button>
+          <button class="tab" data-tab="tab-votante">Votantes</button>
+        </div>
+
+        <div id="tab-eleccion" class="tab-panel">
+          <form id="form-eleccion" class="inline-form">
+            <input type="text" id="eleccion-nombre" placeholder="Nombre" required>
+            <input type="date" id="eleccion-fecha" required>
+            <select id="eleccion-tipo" required>
+              <option value="municipal">Municipal</option>
+              <option value="presidencial">Presidencial</option>
+              <option value="ballotage">Ballotage</option>
+              <option value="plebiscito">Plebiscito</option>
+              <option value="referendum">Referéndum</option>
+            </select>
+            <button type="submit" class="btn-primary">Crear elección</button>
+          </form>
+        </div>
+
+        <div id="tab-partido" class="tab-panel hidden">
+          <form id="form-partido" class="inline-form">
+            <input type="text" id="partido-nombre" placeholder="Nombre partido" required>
+            <input type="text" id="partido-sede" placeholder="Dirección sede">
+            <button type="submit" class="btn-primary">Crear partido</button>
+          </form>
+        </div>
+
+        <div id="tab-lista" class="tab-panel hidden">
+          <form id="form-lista" class="inline-form">
+            <input type="number" id="lista-numero" placeholder="Nº lista" required>
+            <select id="lista-partido" required></select>
+            <select id="lista-eleccion" required></select>
+            <select id="lista-organo" required>
+              <option value="junta_departamental">Junta departamental</option>
+              <option value="diputados">Diputados</option>
+              <option value="senadores">Senadores</option>
+              <option value="concejales">Concejales</option>
+            </select>
+            <button type="submit" class="btn-primary">Crear lista</button>
+          </form>
+        </div>
+
+        <div id="tab-candidato" class="tab-panel hidden">
+          <form id="form-candidato" class="inline-form">
+            <input type="number" id="cand-ciudadano" placeholder="ID ciudadano" required>
+            <select id="cand-partido" required></select>
+            <select id="cand-eleccion" required></select>
+            <select id="cand-cargo" required>
+              <option value="intendente">Intendente</option>
+              <option value="alcalde">Alcalde</option>
+              <option value="edil">Edil</option>
+              <option value="concejal">Concejal</option>
+            </select>
+            <button type="submit" class="btn-primary">Crear candidato</button>
+          </form>
+        </div>
+
+        <div id="tab-votante" class="tab-panel hidden">
+          <form id="form-votante" class="inline-form">
+            <input type="number" id="vot-ciudadano" placeholder="ID ciudadano" required>
+            <select id="vot-circuito" required></select>
+            <button type="submit" class="btn-primary">Asignar circuito</button>
+          </form>
+        </div>
+
+        <div id="admin-message" class="message"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Voto obligatorio y secreto · Participación y Voto separados en el modelo</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

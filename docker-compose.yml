@@ -1,0 +1,56 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: elecciones-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: elecciones_db
+      MYSQL_USER: elecciones
+      MYSQL_PASSWORD: elecciones123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: elecciones-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: elecciones
+      DB_PASSWORD: elecciones123
+      DB_NAME: elecciones_db
+      PORT: 3000
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  init-users:
+    build: .
+    container_name: elecciones-init
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: elecciones_db
+    command: ["node", "server/scripts/init-db.js"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  mysql_data:
