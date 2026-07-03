@@ -81,7 +81,12 @@
           <button id="btn-ver-resultados" class="btn-primary">Ver resultados</button>
         </div>
         <div id="pres-message" class="message"></div>
-        <pre id="resultados-output" class="output"></pre>
+        <div id="resultados-container" class="hidden">
+          <h3>Totales del circuito</h3>
+          <div class="data-table"><table id="resultados-totales"><thead><tr><th>Total</th><th>Válidos</th><th>Blancos</th><th>Anulados</th><th>Observados</th></tr></thead><tbody></tbody></table></div>
+          <h3>Votos por lista</h3>
+          <div class="data-table"><table id="resultados-listas"><thead><tr><th>Lista</th><th>Partido</th><th>Votos</th><th>%</th></tr></thead><tbody></tbody></table></div>
+        </div>
       </div>
 
       <div class="card" id="observados-card">
@@ -99,7 +104,9 @@
           <button id="btn-reporte-partido" class="btn-secondary">Por partido</button>
           <button id="btn-reporte-candidato" class="btn-secondary">Por candidato</button>
         </div>
-        <pre id="reportes-output" class="output"></pre>
+        <div id="reportes-container" class="hidden">
+          <div class="data-table"><table id="reportes-tabla"><thead></thead><tbody></tbody></table></div>
+        </div>
       </div>
     </section>
 

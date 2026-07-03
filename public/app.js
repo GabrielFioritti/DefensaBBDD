@@ -374,16 +374,84 @@ $('#btn-ver-resultados').addEventListener('click', async () => {
     const idCircuito = $('#pres-circuito').value;
     const idEleccion = $('#pres-eleccion').value;
     const data = await api(`/votacion/resultados/circuito/${idCircuito}/${idEleccion}`);
-    $('#resultados-output').textContent = JSON.stringify(data, null, 2);
+
+    const container = $('#resultados-container');
+    container.classList.remove('hidden');
+
+    // Totales
+    const t = data.totales;
+    renderTabla(
+      document.querySelector('#resultados-totales tbody'),
+      [t],
+      [
+        { key: 'total' },
+        { key: 'validos' },
+        { key: 'blancos' },
+        { key: 'anulados' },
+        { key: 'observados' }
+      ]
+    );
+
+    // Votos por lista
+    renderTabla(
+      document.querySelector('#resultados-listas tbody'),
+      data.por_lista,
+      [
+        { key: 'numero', fn: (v) => 'Lista ' + v },
+        { key: 'partido' },
+        { key: 'votos' },
+        { key: 'porcentaje', fn: (v) => v + '%' }
+      ]
+    );
   } catch (err) {
-    $('#resultados-output').textContent = err.message;
+    const container = $('#resultados-container');
+    container.classList.remove('hidden');
+    container.innerHTML = '<p class="message err">' + err.message + '</p>';
   }
 });
 
 async function loadReporte(path) {
   const idEleccion = $('#pres-eleccion').value;
   const data = await api(`${path}/${idEleccion}`);
-  $('#reportes-output').textContent = JSON.stringify(data, null, 2);
+  const container = $('#reportes-container');
+  container.classList.remove('hidden');
+
+  let cols, headers;
+  if (path.includes('departamento')) {
+    headers = ['Departamento', 'V\u00e1lidos', 'Observados', 'Anulados', 'Total'];
+    cols = [
+      { key: 'departamento' },
+      { key: 'validos' },
+      { key: 'observados' },
+      { key: 'anulados' },
+      { key: 'total' }
+    ];
+  } else if (path.includes('partido')) {
+    headers = ['Partido', 'V\u00e1lidos', 'Observados', 'Anulados', 'Total'];
+    cols = [
+      { key: 'partido' },
+      { key: 'validos' },
+      { key: 'observados' },
+      { key: 'anulados' },
+      { key: 'total' }
+    ];
+  } else {
+    headers = ['Candidato', 'Cargo', 'V\u00e1lidos', 'Observados', 'Anulados'];
+    cols = [
+      { key: 'candidato' },
+      { key: 'cargo' },
+      { key: 'validos' },
+      { key: 'observados' },
+      { key: 'anulados' }
+    ];
+  }
+  document.querySelector('#reportes-tabla thead').innerHTML =
+    '<tr><th>' + headers.join('</th><th>') + '</th></tr>';
+  renderTabla(
+    document.querySelector('#reportes-tabla tbody'),
+    data,
+    cols
+  );
 }
 
 $('#btn-reporte-depto').addEventListener('click', () => loadReporte('/votacion/reportes/departamento'));
