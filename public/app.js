@@ -180,7 +180,7 @@ $('#login-form').addEventListener('submit', async (e) => {
     session = await api('/auth/login', {
       method: 'POST',
       body: JSON.stringify({
-        ci: $('#login-ci').value,
+        ci: $('#login-ci').value.trim(),
         password: $('#login-password').value
       })
     });
@@ -198,7 +198,7 @@ $('#register-form').addEventListener('submit', async (e) => {
     await api('/auth/register', {
       method: 'POST',
       body: JSON.stringify({
-        ci: $('#reg-ci').value,
+        ci: $('#reg-ci').value.trim(),
         cc: $('#reg-cc').value,
         nombre_completo: $('#reg-nombre').value,
         fecha_nacimiento: $('#reg-fecha').value,
