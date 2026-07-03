@@ -21,16 +21,8 @@ async function api(path, options = {}) {
 
 async function setLoading(btn, loading) {
   if (!btn) return;
-  if (loading) {
-    btn.disabled = true;
-    btn.classList.add('btn-loading');
-    btn._origText = btn.textContent;
-    btn.innerHTML = '<span class="spinner"></span> Procesando...';
-  } else {
-    btn.disabled = false;
-    btn.classList.remove('btn-loading');
-    btn.textContent = btn._origText || btn.textContent;
-  }
+  btn.disabled = loading;
+  btn.classList.toggle('btn-loading', loading);
 }
 
 function updateUI() {
