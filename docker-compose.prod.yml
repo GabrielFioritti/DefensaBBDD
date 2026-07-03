@@ -2,6 +2,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: elecciones-mysql
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: elecciones_db
@@ -22,12 +23,9 @@ services:
   app:
     build: .
     container_name: elecciones-app
+    restart: unless-stopped
     ports:
       - "3000:3000"
-    volumes:
-      - ./server:/app/server
-      - ./public:/app/public
-      - ./database:/app/database
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -35,8 +33,7 @@ services:
       DB_PASSWORD: elecciones123
       DB_NAME: elecciones_db
       PORT: 3000
-      NODE_ENV: development
-    command: ["node", "--watch", "server/index.js"]
+      NODE_ENV: production
     depends_on:
       mysql:
         condition: service_healthy
