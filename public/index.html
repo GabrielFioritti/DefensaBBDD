@@ -127,6 +127,9 @@
             </select>
             <button type="submit" class="btn-primary">Crear elección</button>
           </form>
+          <div id="lista-elecciones" class="data-table">
+            <table><thead><tr><th>ID</th><th>Nombre</th><th>Fecha</th><th>Tipo</th></tr></thead><tbody></tbody></table>
+          </div>
         </div>
 
         <div id="tab-partido" class="tab-panel hidden">
@@ -135,6 +138,9 @@
             <input type="text" id="partido-sede" placeholder="Dirección sede">
             <button type="submit" class="btn-primary">Crear partido</button>
           </form>
+          <div id="lista-partidos" class="data-table">
+            <table><thead><tr><th>ID</th><th>Nombre</th><th>Sede</th><th>Presidente</th><th>Vicepresidente</th></tr></thead><tbody></tbody></table>
+          </div>
         </div>
 
         <div id="tab-lista" class="tab-panel hidden">
@@ -150,6 +156,9 @@
             </select>
             <button type="submit" class="btn-primary">Crear lista</button>
           </form>
+          <div id="lista-listas" class="data-table">
+            <table><thead><tr><th>Nº</th><th>Partido</th><th>Elección</th><th>Órgano</th></tr></thead><tbody></tbody></table>
+          </div>
         </div>
 
         <div id="tab-candidato" class="tab-panel hidden">
@@ -165,6 +174,9 @@
             </select>
             <button type="submit" class="btn-primary">Crear candidato</button>
           </form>
+          <div id="lista-candidatos" class="data-table">
+            <table><thead><tr><th>ID</th><th>Nombre</th><th>Partido</th><th>Cargo</th></tr></thead><tbody></tbody></table>
+          </div>
         </div>
 
         <div id="tab-votante" class="tab-panel hidden">
@@ -173,6 +185,9 @@
             <select id="vot-circuito" required></select>
             <button type="submit" class="btn-primary">Asignar circuito</button>
           </form>
+          <div id="lista-votantes" class="data-table">
+            <table><thead><tr><th>ID</th><th>CI</th><th>Nombre</th><th>Circuito</th><th>Establecimiento</th><th>Departamento</th></tr></thead><tbody></tbody></table>
+          </div>
         </div>
 
         <div id="admin-message" class="message"></div>

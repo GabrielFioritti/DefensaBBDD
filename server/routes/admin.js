@@ -176,6 +176,24 @@ router.post('/candidatos', async (req, res) => {
   }
 });
 
+router.get('/votantes', async (_req, res) => {
+  try {
+    const rows = await query(
+      `SELECT v.id_ciudadano, c.ci, c.nombre_completo, v.id_circuito_asignado,
+              e.nombre AS establecimiento, d.nombre AS departamento
+       FROM votante v
+       JOIN ciudadano c ON c.id_ciudadano = v.id_ciudadano
+       LEFT JOIN circuito ci ON ci.id_circuito = v.id_circuito_asignado
+       LEFT JOIN establecimiento e ON e.id_establecimiento = ci.id_establecimiento
+       LEFT JOIN departamento d ON d.id_departamento = ci.id_departamento
+       ORDER BY c.nombre_completo`
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/votantes', async (req, res) => {
   try {
     const { id_ciudadano, id_circuito_asignado } = req.body;

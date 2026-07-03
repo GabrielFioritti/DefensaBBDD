@@ -276,6 +276,53 @@ input:focus, select:focus {
   box-shadow: none;
 }
 
+/* === Tablas de datos (admin) === */
+.data-table {
+  margin-top: 1.25rem;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+.data-table thead {
+  position: sticky;
+  top: 0;
+}
+.data-table th {
+  background: #1e293b;
+  color: #f1f5f9;
+  text-align: left;
+  padding: 0.55rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.data-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.data-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+.data-table tbody tr:hover td {
+  background: var(--primary-light);
+}
+.data-table .empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 1.5rem;
+  font-style: italic;
+}
+
 /* === Output (resultados/reportes) === */
 .output {
   background: #1e293b;

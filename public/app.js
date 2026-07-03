@@ -150,6 +150,106 @@ async function loadObservadosPendientes() {
   }
 }
 
+function renderTabla(tbody, data, cols) {
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="99" class="empty">Sin datos</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((row) => {
+    const cells = cols.map((c) => {
+      let val = row[c.key];
+      if (c.fn) val = c.fn(val, row);
+      return `<td>${val ?? ''}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+}
+
+async function loadAdminData() {
+  if (!session || session.rol !== 'admin') return;
+  const activeTab = document.querySelector('.tab.active');
+  if (!activeTab) return;
+  const tabId = activeTab.dataset.tab;
+  if (tabId === 'tab-eleccion') await renderElecciones();
+  else if (tabId === 'tab-partido') await renderPartidos();
+  else if (tabId === 'tab-lista') await renderListas();
+  else if (tabId === 'tab-candidato') await renderCandidatos();
+  else if (tabId === 'tab-votante') await renderVotantes();
+}
+
+async function renderElecciones() {
+  const data = await api('/admin/elecciones');
+  const cols = [
+    { key: 'id_eleccion' },
+    { key: 'nombre' },
+    { key: 'fecha', fn: (v) => { if (!v) return '-'; const d = new Date(v); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; } },
+    { key: 'tipo' }
+  ];
+  renderTabla(
+    document.querySelector('#lista-elecciones table tbody'),
+    data, cols
+  );
+}
+
+async function renderPartidos() {
+  const data = await api('/admin/partidos');
+  const cols = [
+    { key: 'id_partido' },
+    { key: 'nombre' },
+    { key: 'direccion_sede', fn: (v) => v || '-' },
+    { key: 'presidente_nombre', fn: (v) => v || '-' },
+    { key: 'vicepresidente_nombre', fn: (v) => v || '-' }
+  ];
+  renderTabla(
+    document.querySelector('#lista-partidos table tbody'),
+    data, cols
+  );
+}
+
+async function renderListas() {
+  const data = await api('/admin/listas');
+  const cols = [
+    { key: 'numero' },
+    { key: 'partido' },
+    { key: 'eleccion' },
+    { key: 'organo' }
+  ];
+  renderTabla(
+    document.querySelector('#lista-listas table tbody'),
+    data, cols
+  );
+}
+
+async function renderCandidatos() {
+  const data = await api('/admin/candidatos');
+  const cols = [
+    { key: 'id_candidato' },
+    { key: 'nombre_completo' },
+    { key: 'partido' },
+    { key: 'cargo' }
+  ];
+  renderTabla(
+    document.querySelector('#lista-candidatos table tbody'),
+    data, cols
+  );
+}
+
+async function renderVotantes() {
+  const data = await api('/admin/votantes');
+  const cols = [
+    { key: 'id_ciudadano' },
+    { key: 'ci' },
+    { key: 'nombre_completo' },
+    { key: 'id_circuito_asignado', fn: (v) => v ?? 'Sin asignar' },
+    { key: 'establecimiento', fn: (v) => v || '-' },
+    { key: 'departamento', fn: (v) => v || '-' }
+  ];
+  renderTabla(
+    document.querySelector('#lista-votantes table tbody'),
+    data, cols
+  );
+}
+
 async function loadAdminSelects() {
   if (!session || session.rol !== 'admin') return;
   const [partidos, elecciones, circuitos] = await Promise.all([
@@ -164,6 +264,8 @@ async function loadAdminSelects() {
   ['#lista-partido', '#cand-partido'].forEach((sel) => { $(sel).innerHTML = partidoOpts; });
   ['#lista-eleccion', '#cand-eleccion'].forEach((sel) => { $(sel).innerHTML = eleccionOpts; });
   $('#vot-circuito').innerHTML = circuitoOpts;
+
+  loadAdminData();
 }
 
 $('#login-form').addEventListener('submit', async (e) => {
@@ -294,6 +396,7 @@ $$('.tab').forEach((tab) => {
     $$('.tab-panel').forEach((p) => p.classList.add('hidden'));
     tab.classList.add('active');
     $(`#${tab.dataset.tab}`).classList.remove('hidden');
+    if (session && session.rol === 'admin') loadAdminData();
   });
 });
 
@@ -309,6 +412,7 @@ $('#form-eleccion').addEventListener('submit', async (e) => {
       })
     });
     showMessage($('#admin-message'), 'Elección creada', true);
+    renderElecciones();
   } catch (err) {
     showMessage($('#admin-message'), err.message, false);
   }
@@ -325,6 +429,7 @@ $('#form-partido').addEventListener('submit', async (e) => {
       })
     });
     showMessage($('#admin-message'), 'Partido creado', true);
+    renderPartidos();
   } catch (err) {
     showMessage($('#admin-message'), err.message, false);
   }
@@ -343,6 +448,7 @@ $('#form-lista').addEventListener('submit', async (e) => {
       })
     });
     showMessage($('#admin-message'), 'Lista creada', true);
+    renderListas();
   } catch (err) {
     showMessage($('#admin-message'), err.message, false);
   }
@@ -361,6 +467,7 @@ $('#form-candidato').addEventListener('submit', async (e) => {
       })
     });
     showMessage($('#admin-message'), 'Candidato creado', true);
+    renderCandidatos();
   } catch (err) {
     showMessage($('#admin-message'), err.message, false);
   }
@@ -377,6 +484,7 @@ $('#form-votante').addEventListener('submit', async (e) => {
       })
     });
     showMessage($('#admin-message'), 'Votante asignado a circuito', true);
+    renderVotantes();
   } catch (err) {
     showMessage($('#admin-message'), err.message, false);
   }
