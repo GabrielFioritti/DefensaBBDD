@@ -6,8 +6,6 @@ Prototipo de sistema de votación electrónica para la Corte Electoral de Urugua
 
 Hecho con MySQL 8, Node.js con Express del lado del servidor, y HTML, CSS y JS del lado del cliente. Todo corre en Docker.
 
----
-
 ## Arrancar
 
 ### En desarrollo
@@ -49,8 +47,6 @@ Los tres roles vienen precargados al iniciar la base de datos:
 | Presidente de mesa | 34567890 | presidente123 |
 | Admin | 23456789 | admin123 |
 
----
-
 ## Lo que hace el sistema
 
 Tres perfiles, cada uno con su pantalla:
@@ -65,7 +61,6 @@ Tres perfiles, cada uno con su pantalla:
 
 Si el votante selecciona listas de partidos distintos o más de dos listas idénticas, el sistema anula el voto automáticamente. También se puede marcar como voto en blanco.
 
----
 
 ## Cómo está modelada la base de datos
 
@@ -81,8 +76,6 @@ Son +20 tablas. Lo más importante del diseño:
 
 ![Modelo Entidad-Relación](docs/MER.png)
 
----
-
 ## APIs
 
 20 endpoints en total, agrupados en tres archivos:
@@ -92,8 +85,6 @@ Son +20 tablas. Lo más importante del diseño:
 | `routes/auth.js` | login, register |
 | `routes/admin.js` | CRUD de departamentos, circuitos, elecciones, partidos, listas, candidatos, votantes, establecimientos |
 | `routes/votacion.js` | emitir voto, autorizar observado, cerrar mesa, resultados por circuito, reportes por departamento/partido/candidato, listas de una elección, votos observados pendientes |
-
----
 
 ## Archivos del proyecto
 
@@ -117,8 +108,6 @@ docs/
   BD2_Trabajo_Obligatorio-Grupo_C.pdf   # Informe final
   MER.png                               # Modelo Entidad-Relación
 ```
-
----
 
 ## Docker
 
