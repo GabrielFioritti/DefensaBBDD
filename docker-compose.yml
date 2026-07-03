@@ -37,20 +37,5 @@ services:
       mysql:
         condition: service_healthy
 
-  init-users:
-    build: .
-    container_name: elecciones-init
-    environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: rootpassword
-      DB_NAME: elecciones_db
-    command: ["node", "server/scripts/init-db.js"]
-    depends_on:
-      mysql:
-        condition: service_healthy
-    restart: "no"
-
 volumes:
   mysql_data:

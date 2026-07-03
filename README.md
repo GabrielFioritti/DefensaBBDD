@@ -23,7 +23,7 @@ docker compose up --build
 
 Luego abrir http://localhost:3000
 
-El servicio `init-users` crea usuarios demo:
+La inicialización de Docker crea automáticamente usuarios demo:
 
 | Rol | CI | Contraseña |
 |-----|-----|------------|

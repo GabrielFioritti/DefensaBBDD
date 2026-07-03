@@ -1,20 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const bcrypt = require('bcryptjs');
 const mysql = require('mysql2/promise');
 require('dotenv').config();
-
-async function runSqlFile(connection, filePath) {
-  const sql = fs.readFileSync(filePath, 'utf8');
-  const statements = sql
-    .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
-
-  for (const statement of statements) {
-    await connection.query(statement);
-  }
-}
 
 async function main() {
   const root = path.join(__dirname, '..', '..');
@@ -33,23 +20,9 @@ async function main() {
   const schema = fs.readFileSync(schemaPath, 'utf8');
   await connection.query(schema);
 
-  console.log('Ejecutando seed...');
+  console.log('Ejecutando seed (datos + usuarios demo)...');
   const seed = fs.readFileSync(seedPath, 'utf8');
   await connection.query(seed);
-
-  const hashVotante = await bcrypt.hash('votante123', 10);
-  const hashPresidente = await bcrypt.hash('presidente123', 10);
-  const hashAdmin = await bcrypt.hash('admin123', 10);
-
-  await connection.query('USE elecciones_db');
-  await connection.query('DELETE FROM usuario');
-  await connection.query(
-    `INSERT INTO usuario (id_ciudadano, password_hash, rol) VALUES
-      (1, ?, 'votante'),
-      (3, ?, 'presidente_mesa'),
-      (2, ?, 'admin')`,
-    [hashVotante, hashPresidente, hashAdmin]
-  );
 
   console.log('Base de datos inicializada.');
   console.log('Usuarios demo:');

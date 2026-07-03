@@ -93,4 +93,8 @@ INSERT INTO lista_integrante (id_lista, id_candidato, orden) VALUES
   (2, 9, 1), (2, 10, 2),
   (3, 7, 1);
 
--- Usuarios demo se crean con server/scripts/init-db.js (bcrypt)
+-- Usuarios demo (hashes bcrypt pre-computados)
+INSERT INTO usuario (id_ciudadano, password_hash, rol) VALUES
+  (1, '$2a$10$PnlcAH7C9VgZgpy2PYH/Tux2mQUhI5umqbFNNFXw6Q4XVvRv2ehh2', 'votante'),
+  (3, '$2a$10$IS64jsT4zleli/jY0/sQN.D36wywHAEA56/.LsFV6nqCCo1hqbzUq', 'presidente_mesa'),
+  (2, '$2a$10$PcIcmANSbP76Yleg67TUMu50/qF1BkOnJDaf/cDBzj5hNTipzNoLC', 'admin');

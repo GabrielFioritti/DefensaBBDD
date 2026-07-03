@@ -1,5 +1,3 @@
--- Consultas requeridas por la consigna (reportes)
-
 USE elecciones_db;
 
 -- 1. Votos emitidos por departamento (válidos, observados, anulados)
