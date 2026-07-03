@@ -1,4 +1,4 @@
--- Datos de ejemplo para simular elección municipal (Salto)
+SET NAMES utf8mb4;
 USE elecciones_db;
 
 INSERT INTO departamento (nombre) VALUES
@@ -20,9 +20,9 @@ INSERT INTO zona (nombre) VALUES
   ('Zona Norte Artigas');
 
 INSERT INTO establecimiento (nombre, tipo, id_zona) VALUES
-  ('Liceo Nº 1', 'Liceo', 2),
-  ('Escuela Nº 45', 'Escuela', 1),
-  ('Escuela Nº 12', 'Escuela', 3);
+  ('Liceo Nro. 1', 'Liceo', 2),
+  ('Escuela Nro. 45', 'Escuela', 1),
+  ('Escuela Nro. 12', 'Escuela', 3);
 
 INSERT INTO circuito (id_establecimiento, id_departamento, ciudad_paraje, barrio, accesible, cc_desde, cc_hasta) VALUES
   (1, 1, 'Salto', 'Centro', 1, '100001', '100500'),
@@ -99,7 +99,32 @@ INSERT INTO lista_integrante (id_lista, id_candidato, orden) VALUES
   (2, 9, 1), (2, 10, 2),
   (3, 7, 1);
 
--- Usuarios demo (hashes bcrypt pre-computados)
+INSERT INTO participacion (id_votante, id_eleccion, fecha_hora) VALUES
+  (1, 1, '2025-05-11 08:15:00'),
+  (2, 1, '2025-05-11 09:30:00'),
+  (5, 1, '2025-05-11 10:00:00'),
+  (6, 1, '2025-05-11 08:45:00'),
+  (9, 1, '2025-05-11 11:15:00'),
+  (10, 1, '2025-05-11 12:30:00'),
+  (11, 1, '2025-05-11 14:00:00');
+
+INSERT INTO voto (id_circuito, id_eleccion, fecha_hora, observado, estado, observado_autorizado) VALUES
+  (1, 1, '2025-05-11 08:15:00', 0, 'valido', 0),
+  (1, 1, '2025-05-11 09:30:00', 0, 'valido', 0),
+  (1, 1, '2025-05-11 10:00:00', 0, 'blanco', 0),
+  (2, 1, '2025-05-11 08:45:00', 0, 'valido', 0),
+  (2, 1, '2025-05-11 11:15:00', 0, 'anulado', 0),
+  (2, 1, '2025-05-11 12:30:00', 0, 'valido', 0),
+  (1, 1, '2025-05-11 14:00:00', 1, 'valido', 1);
+
+INSERT INTO voto_lista (id_voto, id_lista) VALUES
+  (1, 1), (2, 2), (4, 3), (5, 1), (5, 3), (6, 1), (7, 2);
+
+UPDATE circuito SET votos_emitidos = 4 WHERE id_circuito = 1;
+UPDATE circuito SET votos_emitidos = 3 WHERE id_circuito = 2;
+UPDATE mesa SET cerrada = 1, fecha_cierre = '2025-05-11 18:00:00' WHERE id_circuito = 1;
+
+-- Usuarios demo
 INSERT INTO usuario (id_ciudadano, password_hash, rol) VALUES
   (1, '$2a$10$PnlcAH7C9VgZgpy2PYH/Tux2mQUhI5umqbFNNFXw6Q4XVvRv2ehh2', 'votante'),
   (3, '$2a$10$IS64jsT4zleli/jY0/sQN.D36wywHAEA56/.LsFV6nqCCo1hqbzUq', 'presidente_mesa'),
