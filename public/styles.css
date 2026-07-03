@@ -227,22 +227,54 @@ input:focus, select:focus {
 
 /* === Listas de votación === */
 .lista-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 0.4rem;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  font-weight: 400;
 }
-.lista-item:hover { background: var(--primary-light); }
-.lista-item label { margin: 0; cursor: pointer; display: flex; gap: 0.5rem; align-items: center; }
+.lista-item:hover { background: #f1f5f9; }
+.lista-item:has(input:checked) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  border-width: 2px;
+}
+.lista-item input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary);
+  outline: none;
+}
+.lista-item input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 .checkbox {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin: 1rem 0;
+  cursor: pointer;
+  font-weight: 400;
 }
-.checkbox input { width: auto; margin: 0; }
+.checkbox input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--primary);
+  outline: none;
+}
+.checkbox input:focus {
+  outline: none;
+  box-shadow: none;
+}
 
 /* === Output (resultados/reportes) === */
 .output {

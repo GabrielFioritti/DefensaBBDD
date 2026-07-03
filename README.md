@@ -1,92 +1,137 @@
-# Sistema de Votación Electrónica — BD2 Trabajo Obligatorio Grupo C
+# Votación Electrónica — BD2
 
-Prototipo cliente-servidor para la Corte Electoral de Uruguay. Implementa el MER del informe con MySQL y Node.js/Express.
+**Grupo C** · Leandro Pereira y Gabriel Fioritti · Universidad Católica del Uruguay · Campus Salto
 
-## Requisitos cumplidos
+Prototipo de sistema de votación electrónica para la Corte Electoral de Uruguay. El modelo de datos cubre elecciones municipales, presidenciales, ballotage, plebiscito y referéndum, con énfasis en mantener el **secreto del sufragio** separando la participación del contenido del voto.
 
-- Arquitectura cliente-servidor con base de datos SQL relacional (MySQL 8)
-- Registro de ciudadanos/votantes
-- Carga de elecciones, circuitos, partidos, listas, candidatos y votantes
-- Emisión de voto con **secreto del sufragio** (tablas `participacion` y `voto` separadas)
-- Un voto por elección por votante
-- Voto observado si el circuito no coincide con el padrón
-- Cierre de mesa (sin reapertura ni votos posteriores)
-- Resultados visibles solo con mesa cerrada
-- Reportes por departamento, partido y candidato
-- Imagen Docker lista para desplegar
+Hecho con MySQL 8, Node.js con Express del lado del servidor, y HTML, CSS y JS del lado del cliente. Todo corre en Docker.
 
-## Entornos Docker
+---
 
-El proyecto tiene dos entornos Docker separados:
+## Arrancar
 
-| Entorno | Archivo | Comando | Hot-reload |
-|---------|---------|---------|------------|
-| **Desarrollo** | `docker-compose.yml` | `docker compose up --build` | ✅ Sí |
-| **Producción** | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up --build -d` | ❌ No |
-
-### Desarrollo (hot-reload)
+### En desarrollo
 
 ```bash
 docker compose up --build
 ```
 
-Monta el código fuente como volúmenes, por lo que cualquier cambio en `server/`, `public/` o `database/` se refleja al instante. El servidor se reinicia automáticamente con `node --watch`.
+Los archivos de `server/`, `public/` y `database/` se montan como volúmenes, así que cualquier cambio se ve al instante. El servidor se reinicia solo con `node --watch`.
 
-Abrir http://localhost:3000
+Abrir [http://localhost:3000](http://localhost:3000)
 
-### Producción
+### En producción
 
 ```bash
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-Construye la imagen con el código embebido (sin volúmenes). Ideal para deploy. Los contenedores se reinician automáticamente si fallan.
+El código queda embebido en la imagen, los contenedores se reinician si fallan. Sin volúmenes ni recarga.
 
-Abrir http://localhost:3000
-
-### Usuarios demo
-
-En ambos entornos se crean automáticamente al iniciar MySQL:
-
-| Rol | CI | Contraseña |
-|-----|-----|------------|
-| Votante | 12345678 | votante123 |
-| Presidente mesa | 34567890 | presidente123 |
-| Admin | 23456789 | admin123 |
-
-## Inicio local (sin Docker)
+### Sin Docker
 
 ```bash
 npm install
-# Configurar MySQL local y copiar .env.example a .env
+# Copiar .env.example a .env, configurar MySQL local
 npm run init-db
 npm start
 ```
 
-Abrir http://localhost:3000
+Abrir [http://localhost:3000](http://localhost:3000)
 
-## Estructura
+### Usuarios de prueba
+
+Los tres roles vienen precargados al iniciar la base de datos:
+
+| Rol | CI | Contraseña |
+|-----|----|------------|
+| Votante | 12345678 | votante123 |
+| Presidente de mesa | 34567890 | presidente123 |
+| Admin | 23456789 | admin123 |
+
+---
+
+## Lo que hace el sistema
+
+Tres perfiles, cada uno con su pantalla:
+
+**Votante** — se registra, inicia sesión, elige su circuito, selecciona una o más listas y emite el voto. Si vota en un circuito distinto al que le corresponde por padrón, el voto se marca como observado y necesita autorización del presidente de mesa. No puede votar dos veces en la misma elección.
+
+**Presidente de mesa** — ve los votos observados pendientes de autorizar y los autoriza con un clic. Cierra la mesa cuando termina la votación (una vez cerrada, no se puede reabrir ni aceptar más votos). Ve los resultados de su circuito (solo disponibles después del cierre) y reportes globales por departamento, partido y candidato (solo incluyen datos de mesas cerradas).
+
+**Admin** — carga elecciones, partidos políticos, listas, candidatos y asigna votantes a circuitos. Todo desde pestañas en una misma pantalla.
+
+### Voto en blanco y anulado
+
+Si el votante selecciona listas de partidos distintos o más de dos listas idénticas, el sistema anula el voto automáticamente. También se puede marcar como voto en blanco.
+
+---
+
+## Cómo está modelada la base de datos
+
+Son +20 tablas. Lo más importante del diseño:
+
+**Secreto del voto.** La tabla `participacion` registra qué ciudadano votó y en qué elección. La tabla `voto` registra qué se votó (circuito, listas, papeletas, estado). No hay ninguna clave foránea que las vincule. Es imposible reconstruir quién votó qué.
+
+**Tipos de elección.** El campo `tipo` de `eleccion` acepta `presidencial`, `municipal`, `ballotage`, `plebiscito` y `referendum`. Cada elección puede tener múltiples papeletas, y un voto puede incluir tanto listas como papeletas simultáneamente (para cuando hay más de una elección en la misma jornada).
+
+**Circuitos y mesas.** Cada circuito tiene un rango de credenciales cívicas habilitadas, un establecimiento, un departamento, y una mesa con presidente, secretario y vocal. Los miembros de mesa son empleados públicos (vinculados a un organismo del Estado). Los policías asignados a cada establecimiento pueden pertenecer a comisarías de otro departamento.
+
+**Reportes.** Tres consultas agregadas: votos por departamento, por partido y por candidato, cada una desglosando válidos, observados y anulados. Coinciden exactamente con las consultas pedidas en la consigna.
+
+### Extensiones respecto al MER original
+
+- `municipio`: necesario para candidatos a alcalde y concejales
+- `mesa.cerrada` y `fecha_cierre`: control de cierre sin reapertura
+- `voto.observado_autorizado`: el presidente autoriza el voto observado
+- `lista_integrante.orden`: orden de los candidatos dentro de cada lista
+
+---
+
+## APIs
+
+20 endpoints en total, agrupados en tres archivos:
+
+| Router | Endpoints |
+|--------|-----------|
+| `routes/auth.js` | login, register |
+| `routes/admin.js` | CRUD de departamentos, circuitos, elecciones, partidos, listas, candidatos, votantes, establecimientos |
+| `routes/votacion.js` | emitir voto, autorizar observado, cerrar mesa, resultados por circuito, reportes por departamento/partido/candidato, listas de una elección, votos observados pendientes |
+
+---
+
+## Archivos del proyecto
 
 ```
 database/
-  schema.sql    # Modelo físico (MER + extensiones mínimas)
-  seed.sql      # Datos de ejemplo — elección municipal Salto
-  queries.sql   # Consultas de reportes de la consigna
-server/         # API REST Express
-public/         # Interfaz web
+  schema.sql          # Creación de tablas (modelo físico)
+  seed.sql            # Datos de ejemplo: elección municipal en Salto y Artigas
+  queries.sql         # Consultas de reportes pedidas en la consigna
+server/
+  index.js            # Express, middlewares y rutas
+  db.js               # Pool de conexiones MySQL
+  routes/
+    auth.js           # Login y registro
+    admin.js          # ABM de datos
+    votacion.js       # Votación, cierre, resultados, reportes
+public/
+  index.html          # Interfaz web
+  app.js              # Lógica del frontend
+  styles.css          # Estilos
+docs/
+  BD2_Trabajo_Obligatorio-Grupo_C.pdf   # Informe final
+  MER.png                               # Modelo Entidad-Relación
 ```
 
-## Secreto del voto
+---
 
-El modelo separa **Participación** (quién votó) de **Voto** (qué se votó). No existe FK entre ambas tablas. La restricción de un voto por elección se garantiza con `UNIQUE(id_votante, id_eleccion)` en participación.
+## Docker
 
-## Extensiones al MER documentado
+Dos archivos de compose:
 
-- `municipio`: requerido por alcaldes/concejales (no estaba en el MER)
-- `mesa.cerrada` / `fecha_cierre`: regla de negocio de cierre
-- `voto.observado_autorizado`: autorización del presidente para votos observados
-- `lista_integrante.orden`: orden en la lista electoral
+| Entorno | Archivo | Comando |
+|---------|--------|---------|
+| Desarrollo | `docker-compose.yml` | `docker compose up` |
+| Producción | `docker-compose.prod.yml` | `docker compose -f docker-compose.prod.yml up -d` |
 
-## Informe
-
-El informe en PDF está en `BD2_Trabajo_Obligatorio-Grupo_C.pdf`.
+En desarrollo los directorios `server/`, `public/` y `database/` se montan como volúmenes dentro del contenedor, permitiendo editar y ver los cambios sin reconstruir la imagen.

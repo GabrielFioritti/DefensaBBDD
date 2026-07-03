@@ -105,12 +105,10 @@ async function loadListas() {
     return;
   }
   container.innerHTML = '<h3>Seleccione lista(s)</h3>' + listas.map((l) => `
-    <div class="lista-item">
-      <label>
-        <input type="checkbox" name="lista" value="${l.id_lista}">
-        Lista ${l.numero} — ${l.partido_nombre} (${l.organo})
-      </label>
-    </div>
+    <label class="lista-item">
+      <input type="checkbox" name="lista" value="${l.id_lista}">
+      <span>Lista ${l.numero} — ${l.partido_nombre} (${l.organo})</span>
+    </label>
   `).join('');
 }
 
