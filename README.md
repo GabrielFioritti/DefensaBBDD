@@ -2,7 +2,7 @@
 
 **Grupo C** · Leandro Pereira y Gabriel Fioritti · Universidad Católica del Uruguay · Campus Salto
 
-Prototipo de sistema de votación electrónica para la Corte Electoral de Uruguay. El modelo de datos cubre elecciones municipales, presidenciales, ballotage, plebiscito y referéndum, con énfasis en mantener el **secreto del sufragio** separando la participación del contenido del voto.
+Prototipo de sistema de votación electrónica para la Corte Electoral de Uruguay. El modelo de datos cubre elecciones municipales, presidenciales, ballotage, plebiscito y referéndum, con énfasis en mantener el **secreto del voto** separando la participación del contenido del voto.
 
 Hecho con MySQL 8, Node.js con Express del lado del servidor, y HTML, CSS y JS del lado del cliente. Todo corre en Docker.
 
@@ -79,12 +79,7 @@ Son +20 tablas. Lo más importante del diseño:
 
 **Reportes.** Tres consultas agregadas: votos por departamento, por partido y por candidato, cada una desglosando válidos, observados y anulados. Coinciden exactamente con las consultas pedidas en la consigna.
 
-### Extensiones respecto al MER original
-
-- `municipio`: necesario para candidatos a alcalde y concejales
-- `mesa.cerrada` y `fecha_cierre`: control de cierre sin reapertura
-- `voto.observado_autorizado`: el presidente autoriza el voto observado
-- `lista_integrante.orden`: orden de los candidatos dentro de cada lista
+![Modelo Entidad-Relación](docs/MER.png)
 
 ---
 
