@@ -19,6 +19,20 @@ async function api(path, options = {}) {
   return data;
 }
 
+async function setLoading(btn, loading) {
+  if (!btn) return;
+  if (loading) {
+    btn.disabled = true;
+    btn.classList.add('btn-loading');
+    btn._origText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span> Procesando...';
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('btn-loading');
+    btn.textContent = btn._origText || btn.textContent;
+  }
+}
+
 function updateUI() {
   const logged = !!session;
   $('#user-bar').classList.toggle('hidden', !logged);
@@ -104,6 +118,46 @@ async function loadPresidenteData() {
   if (!session || session.rol !== 'presidente_mesa') return;
   await loadElecciones([$('#pres-eleccion')]);
   await loadCircuitos([$('#pres-circuito')]);
+  await loadObservadosPendientes();
+  $('#pres-circuito').addEventListener('change', loadObservadosPendientes);
+}
+
+async function loadObservadosPendientes() {
+  if (!session || session.rol !== 'presidente_mesa') return;
+  const container = $('#observados-container');
+  const msg = $('#observados-message');
+  msg.textContent = '';
+  try {
+    const votos = await api(`/votacion/observados-pendientes/${session.id_ciudadano}`);
+    if (!votos.length) {
+      container.innerHTML = '<p class="info" id="observados-empty">No hay votos observados sin autorizar.</p>';
+      return;
+    }
+    container.innerHTML = '<ul class="observados-list">' + votos.map((v) => `
+      <li class="observado-item">
+        <span>Voto #${v.id_voto} — Circuito ${v.id_circuito} (${v.ciudad_paraje}, ${v.barrio || 'sin barrio'}) — ${new Date(v.fecha_hora).toLocaleString()}</span>
+        <button class="btn-primary btn-small btn-autorizar" data-id="${v.id_voto}">Autorizar</button>
+      </li>
+    `).join('') + '</ul>';
+    container.querySelectorAll('.btn-autorizar').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        await setLoading(btn, true);
+        try {
+          await api(`/votacion/autorizar-observado/${btn.dataset.id}`, {
+            method: 'POST',
+            body: JSON.stringify({ id_presidente: session.id_ciudadano })
+          });
+          showMessage(msg, 'Voto observado autorizado correctamente.', true);
+          await loadObservadosPendientes();
+        } catch (err) {
+          showMessage(msg, err.message, false);
+          await setLoading(btn, false);
+        }
+      });
+    });
+  } catch (err) {
+    container.innerHTML = `<p class="info">Error al cargar: ${err.message}</p>`;
+  }
 }
 
 async function loadAdminSelects() {
@@ -166,12 +220,15 @@ $('#btn-logout').addEventListener('click', () => {
 });
 
 $('#btn-emitir').addEventListener('click', async () => {
+  const btn = $('#btn-emitir');
   const msg = $('#voto-message');
+  await setLoading(btn, true);
   try {
     const idEleccion = $('#voto-eleccion').value;
     const check = await api(`/votacion/votante/${session.id_ciudadano}/participacion/${idEleccion}`);
     if (check.ya_voto) {
       showMessage(msg, 'Ya votó en esta elección.', false);
+      await setLoading(btn, false);
       return;
     }
 
@@ -192,13 +249,17 @@ $('#btn-emitir').addEventListener('click', async () => {
     let text = `Voto registrado. Estado: ${result.estado}.`;
     if (result.observado) text += ' Marcado como OBSERVADO — requiere autorización del presidente.';
     showMessage(msg, text, true);
+    await setLoading(btn, false);
   } catch (err) {
     showMessage(msg, err.message, false);
+    await setLoading(btn, false);
   }
 });
 
 $('#btn-cerrar-mesa').addEventListener('click', async () => {
+  const btn = $('#btn-cerrar-mesa');
   const msg = $('#pres-message');
+  await setLoading(btn, true);
   try {
     const opt = $('#pres-circuito').selectedOptions[0];
     const idMesa = opt.dataset.mesa;
@@ -207,10 +268,12 @@ $('#btn-cerrar-mesa').addEventListener('click', async () => {
       method: 'POST',
       body: JSON.stringify({ id_presidente: session.id_ciudadano })
     });
-    showMessage(msg, 'Mesa cerrada. No se pueden registrar más votos ni reabrirla.', true);
+    showMessage(msg, '✅ Mesa cerrada. No se pueden registrar más votos ni reabrirla.', true);
     await loadCircuitos([$('#pres-circuito')]);
+    await setLoading(btn, false);
   } catch (err) {
     showMessage(msg, err.message, false);
+    await setLoading(btn, false);
   }
 });
 

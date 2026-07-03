@@ -153,6 +153,27 @@ router.post('/autorizar-observado/:idVoto', async (req, res) => {
   }
 });
 
+router.get('/observados-pendientes/:idPresidente', async (req, res) => {
+  try {
+    const rows = await query(
+      `SELECT v.id_voto, v.id_circuito, v.fecha_hora,
+              c.ciudad_paraje, c.barrio
+       FROM voto v
+       JOIN mesa m ON m.id_circuito = v.id_circuito
+       JOIN circuito c ON c.id_circuito = v.id_circuito
+       WHERE m.id_presidente = ?
+         AND v.observado = 1
+         AND v.observado_autorizado = 0
+         AND m.cerrada = 0
+       ORDER BY v.fecha_hora`,
+      [req.params.idPresidente]
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post('/cerrar-mesa/:idMesa', async (req, res) => {
   try {
     const { id_presidente } = req.body;
@@ -231,7 +252,8 @@ router.get('/reportes/departamento/:idEleccion', async (req, res) => {
        FROM voto v
        JOIN circuito c ON c.id_circuito = v.id_circuito
        JOIN departamento d ON d.id_departamento = c.id_departamento
-       WHERE v.id_eleccion = ?
+       JOIN mesa m ON m.id_circuito = c.id_circuito
+       WHERE v.id_eleccion = ? AND m.cerrada = 1
        GROUP BY d.id_departamento, d.nombre`,
       [req.params.idEleccion]
     );
@@ -253,7 +275,9 @@ router.get('/reportes/partido/:idEleccion', async (req, res) => {
        JOIN voto_lista vl ON vl.id_voto = v.id_voto
        JOIN lista l ON l.id_lista = vl.id_lista
        JOIN partido_politico pp ON pp.id_partido = l.id_partido
-       WHERE v.id_eleccion = ?
+       JOIN circuito c ON c.id_circuito = v.id_circuito
+       JOIN mesa m ON m.id_circuito = c.id_circuito
+       WHERE v.id_eleccion = ? AND m.cerrada = 1
        GROUP BY pp.id_partido, pp.nombre`,
       [req.params.idEleccion]
     );
@@ -275,7 +299,9 @@ router.get('/reportes/candidato/:idEleccion', async (req, res) => {
        JOIN lista_integrante li ON li.id_lista = vl.id_lista
        JOIN candidato ca ON ca.id_candidato = li.id_candidato
        JOIN ciudadano ciu ON ciu.id_ciudadano = ca.id_ciudadano
-       WHERE v.id_eleccion = ?
+       JOIN circuito c ON c.id_circuito = v.id_circuito
+       JOIN mesa m ON m.id_circuito = c.id_circuito
+       WHERE v.id_eleccion = ? AND m.cerrada = 1
        GROUP BY ca.id_candidato, ciu.nombre_completo, ca.cargo`,
       [req.params.idEleccion]
     );

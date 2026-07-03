@@ -78,11 +78,22 @@
         <div id="pres-message" class="message"></div>
         <pre id="resultados-output" class="output"></pre>
       </div>
+
+      <div class="card" id="observados-card">
+        <h3>Votos observados pendientes</h3>
+        <div id="observados-container">
+          <p class="info" id="observados-empty">No hay votos observados sin autorizar.</p>
+        </div>
+        <div id="observados-message" class="message"></div>
+      </div>
+
       <div class="card">
-        <h3>Reportes</h3>
-        <button id="btn-reporte-depto" class="btn-secondary">Por departamento</button>
-        <button id="btn-reporte-partido" class="btn-secondary">Por partido</button>
-        <button id="btn-reporte-candidato" class="btn-secondary">Por candidato</button>
+        <h3>Reportes <span class="badge-info">solo datos de mesas cerradas</span></h3>
+        <div class="actions">
+          <button id="btn-reporte-depto" class="btn-secondary">Por departamento</button>
+          <button id="btn-reporte-partido" class="btn-secondary">Por partido</button>
+          <button id="btn-reporte-candidato" class="btn-secondary">Por candidato</button>
+        </div>
         <pre id="reportes-output" class="output"></pre>
       </div>
     </section>
